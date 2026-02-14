@@ -116,9 +116,15 @@ python xsshliub.py -u "https://target.com/search?q=FUZZ" -t 5 -d 2.0
 
 
 
+### Proxy Support & WAF Evasion
+
+Avoid IP bans by rotating proxies. The tool will pick a random proxy from your list for every new browser session.
+
+python xsshliub.py -u "https://target.com/FUZZ" --proxy-list proxies.txt -t 5
+
+
+
 ## ⚙️ Arguments
-
-
 
 -u, --url       Target URL containing 'FUZZ' keyword.
 
