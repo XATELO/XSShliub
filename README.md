@@ -1,4 +1,4 @@
-\# 💘 XSShliub — The Union of Payload \& Browser
+# 💘 XSShliub — The Union of Payload \& Browser
 
 
 
@@ -10,31 +10,31 @@ Unlike standard scanners that only check HTTP responses, \*\*XSShliub\*\* uses \
 
 
 
-!\[Logo](logo.png)
+![Logo](logo.png)
 
 
 
-\## 🔥 Features
+## 🔥 Features
 
 
 
-\*   \*\*True Verification:\*\* Detects XSS only if JS execution really happens (no false positives).
+*   **True Verification:** Detects XSS only if JS execution really happens (no false positives).
 
-\*   \*\*WAF Evasion:\*\* Random User-Agents and Jitter delay.
+*   **WAF Evasion:** Random User-Agents and Jitter delay.
 
-\*   \*\*Cross-Platform:\*\* Works on \*\*Kali Linux\*\* (root supported) and \*\*Windows\*\*.
+*   **Cross-Platform:** Works on **Kali Linux** (root supported) and **Windows**.
 
-\*   \*\*Smart Fuzzing:\*\* Replaces `FUZZ` keyword in URL with payloads.
+*   **Smart Fuzzing:** Replaces `FUZZ` keyword in URL with payloads.
 
-\*   \*\*Multi-Threading:\*\* Runs multiple browser instances in parallel.
-
-
-
-\## 📦 Installation
+*   **Multi-Threading:** Runs multiple browser instances in parallel.
 
 
 
-\### Linux (Kali) / macOS
+## 📦 Installation
+
+
+
+### Linux (Kali) / macOS
 
 
 
@@ -42,15 +42,15 @@ It is recommended to use a virtual environment:
 
 
 
-1\. Clone the repo:
+1. Clone the repo:
 
-&nbsp;  git clone https://github.com/YOUR\_USERNAME/XSShliub
+&nbsp;  git clone https://github.com/XATELO/XSShliub
 
 &nbsp;  cd XSShliub
 
 
 
-2\. Create venv and install requirements:
+2. Create venv and install requirements:
 
 &nbsp;  python3 -m venv venv
 
@@ -60,31 +60,31 @@ It is recommended to use a virtual environment:
 
 
 
-3\. Install system driver (Kali):
+3. Install system driver (Kali):
 
 &nbsp;  sudo apt update \&\& sudo apt install chromium-driver
 
 
 
-\### Windows
+### Windows
 
 
 
-1\. Clone the repo:
+1. Clone the repo:
 
-&nbsp;  git clone https://github.com/YOUR\_USERNAME/XSShliub
+&nbsp;  git clone https://github.com/XATELO/XSShliub
 
 &nbsp;  cd XSShliub
 
 
 
-2\. Install requirements:
+2. Install requirements:
 
 &nbsp;  pip install -r requirements.txt
 
 
 
-\## 🚀 Usage
+## 🚀 Usage
 
 
 
@@ -92,13 +92,13 @@ You need to put your payloads into `payloads.txt` file in the same directory.
 
 
 
-\### Basic Scan
+### Basic Scan
 
 python xsshliub.py -u "https://target.com/search?q=FUZZ"
 
 
 
-\### Debug Mode (Show Browser)
+### Debug Mode (Show Browser)
 
 Useful to see if WAF blocks you or if the page loads correctly.
 
@@ -106,7 +106,7 @@ python xsshliub.py -u "https://target.com/search?q=FUZZ" --head
 
 
 
-\### Multi-threading (Faster)
+### Multi-threading (Faster)
 
 Run 5 browsers in parallel with 2 seconds delay between requests.
 
@@ -114,7 +114,7 @@ python xsshliub.py -u "https://target.com/search?q=FUZZ" -t 5 -d 2.0
 
 
 
-\## ⚙️ Arguments
+## ⚙️ Arguments
 
 
 
@@ -128,7 +128,7 @@ python xsshliub.py -u "https://target.com/search?q=FUZZ" -t 5 -d 2.0
 
 
 
-\## ⚠️ Disclaimer
+## ⚠️ Disclaimer
 
 This tool is intended for educational purposes and authorized security testing only. The authors are not responsible for any misuse or damage caused by this program.
 
@@ -136,5 +136,5 @@ This tool is intended for educational purposes and authorized security testing o
 
 ---
 
-Made with ❤️ by \*\*DevSecOpter\*\* 
+Made with ❤️ by **DevSecOpter** 
 
