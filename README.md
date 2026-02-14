@@ -2,15 +2,17 @@
 
 
 
-\*\*XSShliub\*\* (pronounced "shliub", means "Marriage" in Belarusian) is a powerful \*\*Client-Side XSS Fuzzer\*\*.
+**XSShliub** (pronounced "shliub", means "Marriage" in Belarusian) is a powerful **Client-Side XSS Fuzzer**.
 
 
 
-Unlike standard scanners that only check HTTP responses, \*\*XSShliub\*\* uses \*\*Selenium (Headless Chrome)\*\* to actually render the page and detect if an `alert()`, `confirm()` or `prompt()` was executed.
+Unlike standard scanners that only check HTTP responses, **XSShliub** uses **Selenium (Headless Chrome)** to actually render the page and detect if an `alert()`, `confirm()` or `prompt()` was executed.
 
 
 
-![Logo](logo.png)
+<p align="center">
+  <img src="logo.png" alt="XSShliub" width="450"/>
+</p>
 
 
 
