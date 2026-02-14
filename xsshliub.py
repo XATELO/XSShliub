@@ -30,8 +30,8 @@ BANNER = f"""{Fore.MAGENTA}
 ██╔╝ ██╗███████║███████║██║  ██║███████╗██║╚██████╔╝██████╔╝
 ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝ ╚═════╝ ╚═════╝ 
                                                             
-{Fore.RED}      ♥  Happy Bug Hunting Day (by DevSecOpter)  ♥
-{Fore.CYAN}            The Union of Payload & Browser
+{Fore.RED}      ♥  Happy Bug Hunting Day  ♥
+{Fore.CYAN}       The Union of Payload & Browser
 {Style.RESET_ALL}"""
 
 print_lock = Lock()
@@ -46,7 +46,7 @@ def load_file(filename):
     with open(filename, "r", encoding="utf-8", errors="ignore") as f:
         return [l.strip() for l in f if l.strip()]
 
-def get_driver(headless=True):
+def get_driver(headless=True, proxies=None):
     options = Options()
     system_os = platform.system()
 
@@ -57,6 +57,10 @@ def get_driver(headless=True):
     options.add_argument("--disable-notifications")
     options.add_argument(f"user-agent={random.choice(user_agents)}")
     
+    if proxies:
+        proxy = random.choice(proxies)
+        options.add_argument(f"--proxy-server={proxy}")
+    
     if headless:
         options.add_argument("--headless=new")
 
@@ -66,21 +70,21 @@ def get_driver(headless=True):
         if os.path.exists("/usr/bin/chromium"):
             options.binary_location = "/usr/bin/chromium"
         elif os.path.exists("/usr/bin/google-chrome"):
-            options.binary_location = "/usr/bin/google-chrome"  
+            options.binary_location = "/usr/bin/google-chrome"
+            
         if os.path.exists("/usr/bin/chromedriver"):
             service = Service("/usr/bin/chromedriver")
         else:
             service = Service()
             
     elif system_os == "Windows":
-        service = Service() 
+        service = Service()
+
     try:
         driver = webdriver.Chrome(service=service, options=options)
-        driver.set_page_load_timeout(15)
+        driver.set_page_load_timeout(20)
         return driver
     except Exception as e:
-        with print_lock:
-            pass
         return None
 
 def check_payload(driver, url):
@@ -94,11 +98,12 @@ def check_payload(driver, url):
     except:
         return None
 
-def worker(queue, delay, headless, pbar):
+def worker(queue, delay, headless, proxies, pbar):
     while not queue.empty():
-        driver = get_driver(headless)
+        driver = get_driver(headless, proxies)
+        
         if not driver:
-            time.sleep(1) # Если ошибка драйвера, чуть ждем и пробуем снова
+            time.sleep(1)
             continue
 
         requests_made = 0
@@ -110,7 +115,6 @@ def worker(queue, delay, headless, pbar):
                     break
 
                 time.sleep(random.uniform(delay, delay * 1.5))
-                
                 alert_text = check_payload(driver, target_url)
                 
                 if alert_text:
@@ -137,20 +141,31 @@ def worker(queue, delay, headless, pbar):
 def main():
     print(BANNER)
     parser = argparse.ArgumentParser()
-    parser.add_argument("-u", "--url", help="URL with FUZZ (e.g. https://site.com/?q=FUZZ)")
+    parser.add_argument("-u", "--url", help="URL with FUZZ")
     parser.add_argument("-t", "--threads", type=int, default=3, help="Browser threads")
     parser.add_argument("-d", "--delay", type=float, default=1.0, help="Delay (sec)")
-    parser.add_argument("--head", action="store_true", help="Show browser (Debug mode)")
+    parser.add_argument("-p", "--proxy", help="Single proxy (http://ip:port)")
+    parser.add_argument("--proxy-list", help="File with list of proxies")
+    parser.add_argument("--head", action="store_true", help="Show browser")
     args = parser.parse_args()
 
     payloads = load_file(PAYLOADS_FILE)
     if not payloads:
-        print(f"{Fore.RED}[!] Create {PAYLOADS_FILE} with payloads!{Style.RESET_ALL}")
+        print(f"{Fore.RED}[!] Create {PAYLOADS_FILE}!{Style.RESET_ALL}")
         sys.exit()
 
     if not args.url or "FUZZ" not in args.url:
-        print(f"{Fore.RED}[!] URL must contain 'FUZZ'. Example: -u https://site.com/FUZZ{Style.RESET_ALL}")
+        print(f"{Fore.RED}[!] URL must contain 'FUZZ'{Style.RESET_ALL}")
         sys.exit()
+
+    proxy_pool = []
+    if args.proxy:
+        proxy_pool.append(args.proxy)
+    if args.proxy_list:
+        proxy_pool.extend(load_file(args.proxy_list))
+    
+    if proxy_pool:
+        print(f"{Fore.YELLOW}[*] Loaded {len(proxy_pool)} proxies. Rotation enabled.{Style.RESET_ALL}")
 
     task_queue = Queue()
     for pay in payloads:
@@ -165,7 +180,7 @@ def main():
     with tqdm(total=len(payloads), ncols=80, bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}") as pbar:
         threads = []
         for _ in range(args.threads):
-            t = Thread(target=worker, args=(task_queue, args.delay, not args.head, pbar))
+            t = Thread(target=worker, args=(task_queue, args.delay, not args.head, proxy_pool, pbar))
             t.start()
             threads.append(t)
         
