@@ -18,7 +18,6 @@ from tqdm import tqdm
 
 init(autoreset=True)
 
-# === КОНФИГУРАЦИЯ ===
 PAYLOADS_FILE = "payloads.txt"
 RESULTS_FILE = "xss_found.txt"
 MAX_REQ_PER_SESSION = 20
@@ -32,7 +31,7 @@ BANNER = f"""{Fore.MAGENTA}
 ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝ ╚═════╝ ╚═════╝ 
                                                             
 {Fore.RED}      ♥  Happy Bug Hunting Day  ♥
-{Fore.CYAN}       The Union of Payload & Browser
+{Fore.CYAN}    The Union of Payload & Browser
 {Style.RESET_ALL}"""
 
 print_lock = Lock()
@@ -58,7 +57,6 @@ def get_driver(headless=True, proxies=None):
     options.add_argument("--disable-notifications")
     options.add_argument(f"user-agent={random.choice(user_agents)}")
     
-    # === PROXY ROTATION ===
     if proxies:
         proxy = random.choice(proxies)
         options.add_argument(f"--proxy-server={proxy}")
@@ -157,7 +155,6 @@ def main():
         print(f"{Fore.RED}[!] Create {PAYLOADS_FILE}!{Style.RESET_ALL}")
         sys.exit()
 
-    # Сбор целей (Single + List)
     targets = []
     if args.url:
         targets.append(args.url)
@@ -169,7 +166,6 @@ def main():
         print(f"{Fore.RED}[!] No targets specified (-u or -l){Style.RESET_ALL}")
         sys.exit()
 
-    # Сбор прокси
     proxy_pool = []
     if args.proxy:
         proxy_pool.append(args.proxy)
@@ -179,13 +175,11 @@ def main():
     if proxy_pool:
         print(f"{Fore.YELLOW}[*] Proxies loaded: {len(proxy_pool)}{Style.RESET_ALL}")
 
-    # Генерация матрицы задач
     task_queue = Queue()
     total_tasks = 0
     print(f"{Fore.BLUE}[*] Generating attack matrix...{Style.RESET_ALL}")
     
     for url in targets:
-        # Автоматическое добавление FUZZ, если забыли
         if "FUZZ" not in url:
             url += "FUZZ"
             

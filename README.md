@@ -26,6 +26,8 @@ Unlike standard scanners that only check HTTP responses, **XSShliub** uses **Sel
 
 *   **Cross-Platform:** Works on **Kali Linux** (root supported) and **Windows**.
 
+*   **Proxy Rotation:** Supports rotating list of proxies to avoid IP bans.
+
 *   **Smart Fuzzing:** Replaces `FUZZ` keyword in URL with payloads.
 
 *   **Multi-Threading:** Runs multiple browser instances in parallel.
@@ -124,6 +126,15 @@ python xsshliub.py -u "https://target.com/FUZZ" --proxy-list proxies.txt -t 5
 
 
 
+
+### Bulk Scan (List of URLs)
+
+You can scan multiple endpoints at once. Create a file `urls.txt` with targets (e.g. `https://site.com/?q=FUZZ`).
+
+python xsshliub.py -l urls.txt -t 5
+
+
+
 ## ⚙️ Arguments
 
 -u, --url       Target URL containing 'FUZZ' keyword.
@@ -131,6 +142,10 @@ python xsshliub.py -u "https://target.com/FUZZ" --proxy-list proxies.txt -t 5
 -t, --threads   Number of concurrent browsers (Default: 3).
 
 -d, --delay     Delay between requests in seconds (Default: 1.0).
+
+-l, --list      File with list of target URLs.
+
+-p, --proxy     Single proxy address.
 
 --head          Disable headless mode (show browser window).
 
