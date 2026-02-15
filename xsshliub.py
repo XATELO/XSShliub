@@ -18,9 +18,10 @@ from tqdm import tqdm
 
 init(autoreset=True)
 
+# === КОНФИГУРАЦИЯ ===
 PAYLOADS_FILE = "payloads.txt"
 RESULTS_FILE = "xss_found.txt"
-MAX_REQ_PER_SESSION = 20 
+MAX_REQ_PER_SESSION = 20
 
 BANNER = f"""{Fore.MAGENTA}
 ██╗  ██╗███████╗███████╗██╗  ██╗██╗     ██╗██╗   ██╗██████╗ 
@@ -57,6 +58,7 @@ def get_driver(headless=True, proxies=None):
     options.add_argument("--disable-notifications")
     options.add_argument(f"user-agent={random.choice(user_agents)}")
     
+    # === PROXY ROTATION ===
     if proxies:
         proxy = random.choice(proxies)
         options.add_argument(f"--proxy-server={proxy}")
@@ -141,10 +143,11 @@ def worker(queue, delay, headless, proxies, pbar):
 def main():
     print(BANNER)
     parser = argparse.ArgumentParser()
-    parser.add_argument("-u", "--url", help="URL with FUZZ")
-    parser.add_argument("-t", "--threads", type=int, default=3, help="Browser threads")
+    parser.add_argument("-u", "--url", help="Single URL with FUZZ")
+    parser.add_argument("-l", "--list", help="List of URLs with FUZZ")
+    parser.add_argument("-t", "--threads", type=int, default=3, help="Threads (Default: 3)")
     parser.add_argument("-d", "--delay", type=float, default=1.0, help="Delay (sec)")
-    parser.add_argument("-p", "--proxy", help="Single proxy (http://ip:port)")
+    parser.add_argument("-p", "--proxy", help="Single proxy")
     parser.add_argument("--proxy-list", help="File with list of proxies")
     parser.add_argument("--head", action="store_true", help="Show browser")
     args = parser.parse_args()
@@ -154,10 +157,19 @@ def main():
         print(f"{Fore.RED}[!] Create {PAYLOADS_FILE}!{Style.RESET_ALL}")
         sys.exit()
 
-    if not args.url or "FUZZ" not in args.url:
-        print(f"{Fore.RED}[!] URL must contain 'FUZZ'{Style.RESET_ALL}")
+    # Сбор целей (Single + List)
+    targets = []
+    if args.url:
+        targets.append(args.url)
+    
+    if args.list:
+        targets.extend(load_file(args.list))
+
+    if not targets:
+        print(f"{Fore.RED}[!] No targets specified (-u or -l){Style.RESET_ALL}")
         sys.exit()
 
+    # Сбор прокси
     proxy_pool = []
     if args.proxy:
         proxy_pool.append(args.proxy)
@@ -165,19 +177,30 @@ def main():
         proxy_pool.extend(load_file(args.proxy_list))
     
     if proxy_pool:
-        print(f"{Fore.YELLOW}[*] Loaded {len(proxy_pool)} proxies. Rotation enabled.{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}[*] Proxies loaded: {len(proxy_pool)}{Style.RESET_ALL}")
 
+    # Генерация матрицы задач
     task_queue = Queue()
-    for pay in payloads:
-        final_url = args.url.replace("FUZZ", pay)
-        task_queue.put((final_url, pay))
+    total_tasks = 0
+    print(f"{Fore.BLUE}[*] Generating attack matrix...{Style.RESET_ALL}")
+    
+    for url in targets:
+        # Автоматическое добавление FUZZ, если забыли
+        if "FUZZ" not in url:
+            url += "FUZZ"
+            
+        for pay in payloads:
+            final_url = url.replace("FUZZ", pay)
+            task_queue.put((final_url, pay))
+            total_tasks += 1
 
-    print(f"{Fore.BLUE}[*] Target: {args.url}")
+    print(f"{Fore.BLUE}[*] Targets: {len(targets)}")
     print(f"{Fore.BLUE}[*] Payloads: {len(payloads)}")
+    print(f"{Fore.BLUE}[*] Total Checks: {total_tasks}")
     print(f"{Fore.BLUE}[*] Engines: {args.threads}")
     print(f"{Fore.MAGENTA}[*] May the XSS be with you...{Style.RESET_ALL}\n")
 
-    with tqdm(total=len(payloads), ncols=80, bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}") as pbar:
+    with tqdm(total=total_tasks, ncols=80, bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt}") as pbar:
         threads = []
         for _ in range(args.threads):
             t = Thread(target=worker, args=(task_queue, args.delay, not args.head, proxy_pool, pbar))
